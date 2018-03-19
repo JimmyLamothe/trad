@@ -70,7 +70,10 @@ if(intervenants):
         for clip in clips_v1:
             start = int(clip[5].text)
             end = int(clip[6].text)
-            value = clip[14][5][2].text
+            try:
+                value = clip[14][5][2].text
+            except IndexError:
+                value = clip[13][5][2].text
             text = ""
             previous_letter = ""
             letter_count = 0

@@ -27,32 +27,36 @@ v1_content = [clip for clip in v1]
 clips_v1 = v1_content[:-2]
 
 with open(filename_txt, 'w') as txt_output:
-    title_list = []
-    count = 0
+    line_list = []
     for clip in clips_v1:
-        count += 1
         try:
             value = clip[14][5][2].text
         except IndexError:
             value = clip[13][5][2].text
-        text = str(count) + ": "
         letter_count = 0
         if value == None:
             continue
+        line = ""
         for letter in value:
             if letter in ['\n','\r','\n\r','\r\n']:
-                if letter_count is 0:
-                    letter_count +=1
-                else:
-                    text += letter
-                    letter_count +=1
-                    count += 1
-                    text += str(count) + ": "
+                line += letter
+                letter_count +=1
+                line_list.append(line)
+                line = ""
             else:
-                text += letter
+                line += letter
                 letter_count += 1
-        title_list.append(text)    
         letter_count = 0
-    for title in title_list:
-        txt_output.write(title)
-        txt_output.write('\n')
+
+    count = 0
+    for line in line_list:
+        if len(line) > 1:
+            count += 1
+            num_line = str(count) + ': ' + line 
+            txt_output.write(num_line)
+            txt_output.write('\n')
+        else:
+            print(len(line))
+            print(len(line) > 1)
+
+
