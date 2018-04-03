@@ -53,7 +53,7 @@ v1_content = [clip for clip in v1]
 clips_v1 = v1_content[:-2]
 
 if(intervenants):
-    with open(filename_srt, 'w') as srt_output:
+    with open(filename_srt, 'w', encoding="utf-8") as srt_output:
         clip_list = []
         for clip in clips_v1:
             start = int(clip[5].text)
@@ -81,22 +81,29 @@ if(intervenants):
                 letter_count += 1
             clip_list.append((start, end, text))
         sorted_clip_list = sorted(clip_list, key = lambda clip: clip[0])
-
+        
+        count = 0
         for clip in sorted_clip_list:
+            count += 1
             duration = clip[1] - clip[0]
             tc_in_base = tc_calc.tc_calc(clip[0], hour = 10, tc = tc)
             tc_in_start = tc_in_base[0:8]
             tc_in_frames = tc_in_base[9:]
-            tc_in_milliseconds = str(float(tc_in_frames) / tc)[2:5]
+            tc_in_milliseconds_base = float(tc_in_frames) / tc
+            tc_in_milliseconds = "{0:.3f}".format(tc_in_milliseconds_base)[2:5]
             tc_in = tc_in_start + ',' + tc_in_milliseconds
             tc_out_base = tc_calc.tc_calc(clip[1], hour = 10, tc = tc)
             tc_out_start = tc_out_base[0:8]
             tc_out_frames = tc_out_base[9:]
-            tc_out_milliseconds = str(float(tc_out_frames) / tc)[2:5]
+            tc_out_milliseconds_base = float(tc_out_frames) / tc
+            tc_out_milliseconds = "{0:.3f}".format(tc_out_milliseconds_base)[2:5]
             tc_out = tc_out_start + ',' + tc_out_milliseconds
+            srt_output.write(str(count))
+            srt_output.write('\n')
             srt_output.write(tc_in)
             srt_output.write(' --> ')
             srt_output.write(tc_out)
             srt_output.write('\n')
             srt_output.write(clip[2])
+            srt_output.write('\n')
             srt_output.write('\n')
