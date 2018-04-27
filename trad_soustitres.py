@@ -1,13 +1,10 @@
 """
-Convertit un XML FCP7 en .txt convertible en tableau dans Word avec Time Codes
-et identifications de personnages. Prend deux pistes vidéo.
-
-Modifier le nom du personnage de la V1 dans le programme directement.
+Convertit un XML FCP7 en .txt convertible en tableau dans Word avec Time Codes.
 
 Prend trois arguments: input/NOMDUXML -  output/NOMDUTXT - TC
 """
 
-import xml.etree.ElementTree as etree
+from lxml import etree
 import sys
 import tc_calc
 
@@ -17,8 +14,6 @@ filename = sys.argv[2]
 
 input_file = sys.argv[1]
 
-intervenants = True
-
 tc = "0"
 
 try:
@@ -26,20 +21,6 @@ try:
 except IndexError:
     print("Don't forget to enter Time Code (24 or 30)")
     sys.exit(0)
-"""
-if(len(sys.argv) == 5):
-    with open(sys.argv[4], 'r') as liste_intervenants:
-        for intervenant in liste_intervenants:
-            intervenants.append(intervenant)
-
-text_only = False
-if(len(sys.argv) > 3):
-    if(sys.argv[3] == "text_only"):
-        text_only = True
-    elif(int(sys.argv[3]) > 0):
-        tc = int(sys.argv[3])
-"""
-final = False
 
 filename_txt = filename + '.txt'
 
@@ -47,112 +28,55 @@ tree = etree.parse(input_file)
 
 root = tree.getroot()
 
-v1 = root[0][8][0][1]
+sequence = root.find('sequence')
 
-v2 = root[0][8][0][2]
+media = sequence.find('media')
 
-v1_content = [clip for clip in v1]
+video = media.find('video')
 
-clips_v1 = v1_content[:-2]
+def get_track_list(video_or_audio):
+    return(video_or_audio.findall('track'))
 
-if(intervenants):
-    v2_content = [clip for clip in v2]
-    clips_v2 = v2_content[:-2]
+track_list = get_track_list(video)
+    
+v1 = track_list[0]
 
+title_list = v1.findall('generatoritem')
 
-
-
-if(intervenants):
-    with open(filename_txt, 'w') as txt_output:
-        clip_list = []
-        name = input("Entrez le nom du personnage principal\n")
-        number = "ST-1"
-        for clip in clips_v1:
-            start = int(clip[5].text)
-            end = int(clip[6].text)
-            try:
-                value = clip[14][5][2].text
-            except IndexError:
-                value = clip[13][5][2].text
-            text = ""
-            previous_letter = ""
-            letter_count = 0
-            for letter in value:
-                if letter in ['\n','\r','\n\r','\r\n']:
-                    if letter_count == 0:
-                        pass
-                    else:
-                        text += " "
-                elif letter == "-" and letter_count in [0,1,2]:
-                    pass
-                elif previous_letter == "-" and letter_count in [1,2,3]:
+with open(filename_txt, 'w') as txt_output:
+    clip_list = []
+    for title in title_list:
+        start = int(title.find('start').text)
+        end = int(title.find('end').text)
+        effect = title.find('effect')
+        parameter = effect.find('parameter')
+        value = parameter.find('value').text
+        text = ""
+        previous_letter = ""
+        letter_count = 0
+        for letter in value:
+            if letter in ['\n','\r','\n\r','\r\n']:
+                if letter_count == 0:
                     pass
                 else:
-                    text += letter
-                previous_letter = letter
-                letter_count += 1
-            clip_list.append((start, end, number, name, text))
-        name = "Nom"
-        number = "1"
-        for clip in clips_v2:
-            start = int(clip[5].text)
-            end = int(clip[6].text)
-            value = clip[14][5][2].text
-            text = ""
-            previous_letter = ""
-            letter_count = 0
-            for letter in value:
-                if letter in ['\n','\r','\n\r','\r\n']:
-                    if letter_count == 0:
-                        pass
-                    else: 
-                        text += " "
-                elif letter == "-" and letter_count in [0,1,2]:
-                    pass
-                elif previous_letter == "-" and letter_count in [1,2,3]:
-                    pass
-                else:
-                    text += letter
-                previous_letter = letter
-                letter_count += 1
-            clip_list.append((start, end, number, name, text))
-        sorted_clip_list = sorted(clip_list, key = lambda clip: clip[0])
-        #short_clip_list serves to combine subtitles when the same person is talking for a long time.
-        short_clip_list = []
-        current_start = 0
-        current_end = 0
-        current_number = "0"
-        current_name = ""
-        current_text = ""
-        for clip in sorted_clip_list:
-            if clip[0] -  current_end > 60 or clip[3] != current_name:
-                short_clip_list.append((current_start, current_end, current_number,
-                                        current_name, current_text))
-                current_start = clip[0]
-                current_text=""
-            current_end = clip[1]
-            current_number = clip[2]
-            current_name = clip[3]
-            if current_text:
-                current_text += " "
-            current_text += clip[4]
-        #To catch last title
-        if current_text:
-            short_clip_list.append((current_start, current_end, current_number,
-                                        current_name, current_text))
-        for clip in sorted_clip_list:
-            duration = clip[1] - clip[0]
-            tc_in = tc_calc.tc_calc(clip[0], hour = 10, tc = tc)
-            tc_out = tc_calc.tc_calc(clip[1], hour = 10, tc = tc)
-            txt_output.write(tc_in)
-            txt_output.write(';')
-            txt_output.write(clip[2])
-            txt_output.write(';')
-            txt_output.write(clip[3])
-            txt_output.write(';')
-            if value[0] in ['\n','\r','\r\n']:
-                txt_output.write(clip[4])
-                txt_output.write('\n')
+                    text += " "
+            elif letter == "-" and letter_count in [0,1,2]:
+                pass
+            elif previous_letter == "-" and letter_count in [1,2,3]:
+                pass
             else:
-                txt_output.write(clip[4])
-                txt_output.write('\n')
+                text += letter
+            previous_letter = letter
+            letter_count += 1
+        clip_list.append((start, end, text))
+
+    sorted_clip_list = sorted(clip_list, key = lambda clip: clip[0])
+
+    for clip in sorted_clip_list:
+        duration = clip[1] - clip[0]
+        tc_in = tc_calc.tc_calc(clip[0], hour = 10, tc = tc)
+        tc_out = tc_calc.tc_calc(clip[1], hour = 10, tc = tc)
+        txt_output.write(tc_in)
+        txt_output.write(';')
+        txt_output.write(clip[2])
+        txt_output.write('\n')

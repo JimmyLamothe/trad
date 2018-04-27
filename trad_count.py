@@ -1,12 +1,11 @@
 """
 Counts the number of title lines in a FCP7 XML file.
 
-Usage: python3 linecount_fcp_xml.py input/XMLNAME output/TXTNAME
+Usage: python3 trad_count.py input/XMLNAME output/TXTNAME
 
 """
-import xml.etree.ElementTree as etree
+from lxml import etree
 import sys
-import tc_calc
 
 filename = sys.argv[2]
 
@@ -18,26 +17,34 @@ tree = etree.parse(input)
 
 root = tree.getroot()
 
-v1 = root[0][8][0][1]
+sequence = root.find('sequence')
 
-#v2 = root[0][8][0][2]
+media = sequence.find('media')
 
-v1_content = [clip for clip in v1]
+video = media.find('video')
 
-clips_v1 = v1_content[:-2]
+def get_track_list(video_or_audio):
+    return(video_or_audio.findall('track'))
+
+track_list = get_track_list(video)
+    
+v1 = track_list[0]
+
+title_list = v1.findall('generatoritem')
 
 with open(filename_txt, 'w') as txt_output:
     line_list = []
-    for clip in clips_v1:
-        try:
-            value = clip[14][5][2].text
-        except IndexError:
-            value = clip[13][5][2].text
+    for title in title_list:
+        effect = title.find('effect')
+        parameter = effect.find('parameter')
+        value = parameter.find('value')
+        text = value.text
         letter_count = 0
-        if value == None:
+        if text == None:
+            print('pass')
             continue
         line = ""
-        for letter in value:
+        for letter in text:
             if letter in ['\n','\r','\n\r','\r\n']:
                 line += letter
                 letter_count +=1
@@ -46,17 +53,14 @@ with open(filename_txt, 'w') as txt_output:
             else:
                 line += letter
                 letter_count += 1
+        if line:
+            line_list.append(line)
         letter_count = 0
 
     count = 0
-    for line in line_list:
-        if len(line) > 1:
-            count += 1
-            num_line = str(count) + ': ' + line 
-            txt_output.write(num_line)
-            txt_output.write('\n')
-        else:
-            print(len(line))
-            print(len(line) > 1)
-
-
+    short_line_list = [line for line in line_list if len(line) > 1]
+    for line in short_line_list:
+        count += 1
+        num_line = str(count) + ': ' + line 
+        txt_output.write(num_line)
+        txt_output.write('\n')
