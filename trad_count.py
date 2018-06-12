@@ -64,3 +64,5 @@ with open(filename_txt, 'w') as txt_output:
         num_line = str(count) + ': ' + line 
         txt_output.write(num_line)
         txt_output.write('\n')
+
+print(count)
