@@ -1,19 +1,17 @@
 """
 Prints the text  of titles in a FCP7 XML file.
 
-Usage: python3 linecount_fcp_xml.py input/XMLNAME output/TXTNAME
+Usage: python3 linecount_fcp_xml.py input/XMLNAME
 
 """
 from lxml import etree
 import sys
 
-filename = sys.argv[2]
+input_file = sys.argv[1]
 
-input = sys.argv[1]
+filename_txt = input_file[:-4] + '.txt'
 
-filename_txt = filename + '.txt'
-
-tree = etree.parse(input)
+tree = etree.parse(input_file)
 
 root = tree.getroot()
 

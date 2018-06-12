@@ -1,7 +1,7 @@
 """
 Convertit un XML FCP7 en .txt convertible en tableau dans Word avec Time Codes.
 
-Prend trois arguments: input/NOMDUXML -  output/NOMDUTXT - TC
+Prend deux arguments: input/NOMDUXML - TC
 """
 
 from lxml import etree
@@ -10,19 +10,17 @@ import tc_calc
 
 print('Ne pas oublier de vérifier que le TC est bon avant de travailler sur le document Word.\n')
 
-filename = sys.argv[2]
-
 input_file = sys.argv[1]
 
 tc = "0"
 
 try:
-    tc = int(sys.argv[3])
+    tc = int(sys.argv[2])
 except IndexError:
     print("Don't forget to enter Time Code (24 or 30)")
     sys.exit(0)
 
-filename_txt = filename + '.txt'
+filename_txt = input_file[:-4] + '.txt'
 
 tree = etree.parse(input_file)
 

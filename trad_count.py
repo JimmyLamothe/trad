@@ -1,19 +1,17 @@
 """
 Counts the number of title lines in a FCP7 XML file.
 
-Usage: python3 trad_count.py input/XMLNAME output/TXTNAME
+Usage: python3 trad_count.py input/XMLNAME
 
 """
 from lxml import etree
 import sys
 
-filename = sys.argv[2]
+input_file = sys.argv[1]
 
-input = sys.argv[1]
+filename_txt = input_file[:-4] + '_count.txt'
 
-filename_txt = filename + '_count.txt'
-
-tree = etree.parse(input)
+tree = etree.parse(input_file)
 
 root = tree.getroot()
 

@@ -3,7 +3,7 @@ Convertit un XML FCP7 en .txt pour Antidote.
 Fait une pause après la conversion.
 Ensuite, reconvertit le .txt corrigé en XML.
 
-Prend deux arguments: input/NOMDUXML output/NOMDUTXT.
+Prend un argument: input/NOMDUXML.
 """
 
 
@@ -11,11 +11,11 @@ from lxml import etree
 import sys
 import tc_calc
 
-filename = sys.argv[2]
-
-filename_xml = filename + '.xml'
-
 input_xml = sys.argv[1]
+
+filename = input_xml[:-4]
+
+filename_xml = filename + '_new.xml'
 
 tc = 30
 
