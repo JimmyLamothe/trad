@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Counts the number of title lines in a FCP7 XML file.
 

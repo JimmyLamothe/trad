@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Convertit un XML FCP7 en .txt pour Antidote.
 Fait une pause après la conversion.

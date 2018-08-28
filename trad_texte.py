@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Prints the text  of titles in a FCP7 XML file.
 

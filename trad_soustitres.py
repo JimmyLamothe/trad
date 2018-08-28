@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Convertit un XML FCP7 en .txt convertible en tableau dans Word avec Time Codes.
 
