@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Convertit un XML FCP7 en .srt.
 
@@ -49,6 +51,13 @@ with open(filename_srt, 'w') as srt_output:
         effect = title.find('effect')
         parameter = effect.find('parameter')
         value = parameter.find('value').text
+        if value == None:
+            try:
+                parameter = effect[6]
+                value = parameter.find('value').text
+            except Exception:
+                print('Title failed')
+                continue
         text = ""
         previous_letter = ""
         letter_count = 0

@@ -89,6 +89,8 @@ with open(filename_txt, 'w') as txt_output:
         text = ""
         previous_letter = ""
         letter_count = 0
+        if not value:
+            continue
         for letter in value:
             if letter in ['\n','\r','\n\r','\r\n']:
                 if letter_count == 0:

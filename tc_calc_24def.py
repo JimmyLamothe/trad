@@ -4,25 +4,18 @@
 
 import sys, math
 
-def tc_calc(input, integer = False, reverse = False, hour = 0, tc = 30):
+def tc_calc(input, integer = False, reverse = False, hour = 0, tc = 24):
      """input is an integer (number of frames).
      Use reverse = True to go from TC to frames.
      If reverse, input is a 4-tuple (hours, mins, secs, frames).
      Use hour if TC start is e.g. 9:58:30:00 or 10:00:00:00.
-     Use tc to specify tc rate if different than 30. Only 24 implemented.
+     Use tc to specify tc rate if different than 24. Only 30 implemented.
      """ 
      if reverse:
-          if(tc == 24):
-               hour_frames = math.floor(input[0] * (60*60*23.976))
-               min_frames = math.floor(input[1] * (60*23.976))
-               sec_frames = math.floor(input[2] * (23.976))
-               total_frames = input[3] + sec_frames + min_frames + hour_frames
-          else:
-               hour_frames = input[0] * (60*60*30)
-               min_frames = input[1] * (60*30)
-               sec_frames = input[2] * (30)
-               total_frames = input[3] + sec_frames + min_frames + hour_frames
-
+          hour_frames = input[0] * (60*60*30)
+          min_frames = input[1] * (60*30)
+          sec_frames = input[2] * (30)
+          total_frames = input[3] + sec_frames + min_frames + hour_frames
           return total_frames
 
      else:

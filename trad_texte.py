@@ -38,10 +38,15 @@ with open(filename_txt, 'w') as txt_output:
         effect = title.find('effect')
         parameter = effect.find('parameter')
         value = parameter.find('value').text
+        if value == None:
+            try:
+                parameter = effect[6]
+                value = parameter.find('value').text
+            except Exception:
+                print('Title failed')
+                continue
         text = ""
         count = 0
-        if value == None:
-            continue
         for letter in value:
             if letter in ['\n','\r','\n\r','\r\n']:
                 text += " "

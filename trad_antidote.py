@@ -67,7 +67,6 @@ with open(filename_txt, 'r') as txt_input:
             clip[1][14][5][2].text = title_list[clip[0]].replace('\n', 'BRK_LN')
         except IndexError:
             clip[1][13][5][2].text = title_list[clip[0]].replace('\n', 'BRK_LN')
-
 tree.write(filename_xml, encoding = 'UTF-8', xml_declaration = True)
 
 
