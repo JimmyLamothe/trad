@@ -52,7 +52,7 @@ title_list_v2 = v2.findall('generatoritem')
 
 with open(filename_txt, 'w') as txt_output:
     clip_list = []
-    name = input("Entrez le nom du personnage principal\n")
+    name = input("Entrez le nom de l'invité ou l'animateur.\n")
     number = "ST-1"
     for title in title_list_v1:
         start = int(title.find('start').text)
@@ -78,7 +78,9 @@ with open(filename_txt, 'w') as txt_output:
             previous_letter = letter
             letter_count += 1
         clip_list.append((start, end, number, name, text))
-    name = "Nom"
+    name = input("Tapez le nom de l'intervenant principal, s'il y en a un.\n")
+    if not name:
+        name = "Nom"
     number = "1"
     for title in title_list_v2:
         start = int(title.find('start').text)
@@ -115,7 +117,16 @@ with open(filename_txt, 'w') as txt_output:
     current_name = ""
     current_text = ""
     for clip in sorted_clip_list:
-        if clip[0] -  current_end > 60 or clip[3] != current_name:
+        #TESTING: For manual breaks, using "*" to indicate new block start
+        if clip[4][0] == '*':
+            clip = list(clip)
+            clip[4] = clip[4][1:] #remove block start indicator
+            clip = tuple(clip)
+            short_clip_list.append((current_start, current_end, current_number,
+                                    current_name, current_text))
+            current_start = clip[0]
+            current_text=""
+        elif clip[0] -  current_end > 60 or clip[3] != current_name:
             short_clip_list.append((current_start, current_end, current_number,
                                     current_name, current_text))
             current_start = clip[0]
@@ -137,7 +148,7 @@ with open(filename_txt, 'w') as txt_output:
         if duration < 150:
             txt_output.write(tc_in)
         else:
-            txt_output.write(tc_in + " À " + tc_out)
+            txt_output.write(tc_in + " à " + tc_out)
         txt_output.write(';')
         txt_output.write(clip[2])
         txt_output.write(';')

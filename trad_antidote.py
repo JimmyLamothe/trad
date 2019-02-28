@@ -29,23 +29,34 @@ tree = etree.parse(input_xml)
 
 root = tree.getroot()
 
-v1 = root[0][8][0][1]
+sequence = root.find('sequence')
 
-v2 = root[0][8][0][2]
+media = sequence.find('media')
 
-v1_content = [clip for clip in v1]
+video = media.find('video')
 
-clips_v1 = v1_content[:-2]
+def get_track_list(video_or_audio):
+    return(video_or_audio.findall('track'))
+
+track_list = get_track_list(video)
+    
+v1 = track_list[0]
+
+clip_list = v1.findall('generatoritem')
 
 with open(filename_txt, 'w') as txt_output:
     title_list = []
-    for clip in clips_v1:
-        try:
-            value = clip[14][5][2].text
-        except IndexError:
-            value = clip[13][5][2].text
+    for title in clip_list:
+        effect = title.find('effect')
+        parameter = effect.find('parameter')
+        value = parameter.find('value').text
         if value == None:
-            continue
+            try:
+                parameter = effect[6]
+                value = parameter.find('value').text
+            except Exception:
+                print('Title failed')
+                continue
         title_list.append(value)    
     for title in title_list:
         txt_output.write("*** " +title)
@@ -60,13 +71,26 @@ with open(filename_txt, 'r') as txt_input:
     print(len(title_list))
     print(title_list)
     title_list = title_list[1:]
-    for clip in enumerate(clips_v1):
+    for clip in enumerate(clip_list):
         print(clip[0])
         print(clip[1])
+        effect = clip[1].find('effect')
+        parameter = effect.find('parameter')
+        value = parameter.find('value').text
+        if value == None:
+            try:
+                parameter = effect[6]
+                value = parameter.find('value').text
+            except Exception:
+                print('Title failed')
+                continue
         try:
-            clip[1][14][5][2].text = title_list[clip[0]].replace('\n', 'BRK_LN')
-        except IndexError:
-            clip[1][13][5][2].text = title_list[clip[0]].replace('\n', 'BRK_LN')
+            value = title_list[clip[0]].replace('\n', 'BRK_LN')
+        except Exception:
+            print('Title failed')
+            print(clip)
+            sys.exit(0)
+
 tree.write(filename_xml, encoding = 'UTF-8', xml_declaration = True)
 
 
