@@ -1,0 +1,7 @@
+__*
+bin*
+input*
+include*
+lib*
+*.py~
+.DS*

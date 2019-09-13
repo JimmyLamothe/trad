@@ -14,6 +14,7 @@ import sys
 import tc_calc
 
 input_xml = sys.argv[1]
+output_xml = sys.argv[2] #input/REF/REF_ECHO_24 or 30
 
 filename = input_xml[:-4]
 
@@ -26,37 +27,51 @@ text_only = True
 filename_txt = filename + '.txt'
 
 tree = etree.parse(input_xml)
+output_tree = etree.parse(output_xml)
+
+def xml_print(xml, pretty=True):
+    print(etree.tostring(xml, pretty_print=pretty))
+    sys.exit(0)
 
 root = tree.getroot()
+output_root = output_tree.getroot()
 
 sequence = root.find('sequence')
+output_sequence = output_root.find('sequence')
 
 media = sequence.find('media')
-
+output_media = output_sequence.find('media')
+                    
 video = media.find('video')
+output_video = output_media.find('video')
 
 def get_track_list(video_or_audio):
     return(video_or_audio.findall('track'))
 
 track_list = get_track_list(video)
-    
-v1 = track_list[0]
+output_track_list = get_track_list(output_video)
 
-clip_list = v1.findall('generatoritem')
+v1 = track_list[0]
+output_v1 = output_track_list[0]
+
+clip_list = v1.findall('clipitem')
+output_clip_list = output_v1.findall('generatoritem')
 
 with open(filename_txt, 'w') as txt_output:
     title_list = []
-    for title in clip_list:
-        effect = title.find('effect')
-        parameter = effect.find('parameter')
-        value = parameter.find('value').text
+    for number, title in enumerate(clip_list):
+        filter = title.find('filter')
+        effect = filter.find('effect')
+        value = effect.find('name').text
         if value == None:
             try:
-                parameter = effect[6]
-                value = parameter.find('value').text
+                raise Exception # To implement for Premiere version
             except Exception:
-                print('Title failed')
+                print('Title ' + str(number) + ' failed - No value')
+                input('Continue?')
                 continue
+        print('Title ' + str(number) + ': ')
+        print(value.replace('\r','\n'))
         title_list.append(value)    
     for title in title_list:
         txt_output.write("*** " +title)
@@ -70,13 +85,30 @@ with open(filename_txt, 'r') as txt_input:
     title_list = txt_input_string.split(sep="*** ")
     print(len(title_list))
     print(title_list)
+    input('Continue?')
     title_list = title_list[1:]
-    for clip in enumerate(clip_list):
+    print(output_clip_list)
+    for number, clip in enumerate(output_clip_list):
+        if number >= len(title_list):
+            break
         print(number)
         print(clip)
         effect = clip.find('effect')
         parameter = effect.find('parameter')
         value = parameter.find('value').text
+        source = clip_list[number]
+        start = source.find('start').text
+        end = source.find('end').text
+        clip.find('start').text = start
+        clip.find('end').text = end
+        for loop_parameter in effect.findall('parameter'):
+            if loop_parameter.find('parameterid').text == 'fontsize':
+                loop_parameter.find('value').text = '32' #Value for ECHO - change if necessary
+                print('changed font size')
+            if loop_parameter.find('parameterid').text == 'origin':
+                origin_value = loop_parameter.find('value')
+                origin_value.find('vert').text = '0.410000' #Value for ECHO - change if necessary
+                print('changed title origin')
         if value == None:
             try:
                 parameter = effect[6]
@@ -88,13 +120,15 @@ with open(filename_txt, 'r') as txt_input:
             value = title_list[number].replace('\n', 'BRK_LN')
             print(value)
             parameter.find('value').text = value
+            print(parameter.find('value'))
         except Exception:
             print('Title failed')
             print(clip)
-            sys.exit(0)
 
-tree.write(filename_xml, encoding = 'UTF-8', xml_declaration = True)
+#Change name
+output_sequence.find('name').text = 'REF_' + filename[6:]
 
+output_tree.write(filename_xml, encoding = 'UTF-8', xml_declaration = True)
 
 # correcting bad line break formatting
 filedata = None
