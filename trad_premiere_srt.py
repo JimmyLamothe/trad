@@ -32,22 +32,25 @@ def get_track_list(video_or_audio):
 
 track_list = get_track_list(video)
 v1 = track_list[0]
-title_list = v1.findall('clipitem')
+clip_list = v1.findall('clipitem')
 with open(filename_srt, 'w') as srt_output:
-    clip_list = []
-    for title in title_list:
-        start = int(title.find('start').text)
-        end = int(title.find('end').text)
-        filter = title.find('filter')
-        effect = filter.find('effect')
-        value = effect.find('name').text
-        print(value)
-        if value == None:
-            try:
-                raise Exception #To implement for Premiere version
-            except Exception:
-                print('Title failed')
+    title_list = []
+    for clip in clip_list:
+        start = int(clip.find('start').text)
+        end = int(clip.find('end').text)
+        filter_list = clip.findall('filter')
+        value = ""
+        line = 1
+        for filter in filter_list:
+            if line > 1:
+                value += '\n'
+            effect = filter.find('effect')
+            if effect.find('name').text == None:
+                print('Title failed - No value')
                 continue
+            else:
+                value += effect.find('name').text
+                line += 1
         text = ""
         previous_letter = ""
         letter_count = 0
@@ -65,9 +68,9 @@ with open(filename_srt, 'w') as srt_output:
                 text += letter
             previous_letter = letter
             letter_count += 1
-        clip_list.append((start, end, text))
+        title_list.append((start, end, text))
 
-    sorted_clip_list = sorted(clip_list, key = lambda clip: clip[0])
+    sorted_clip_list = sorted(title_list, key = lambda clip: clip[0])
 
     count = 0
     for clip in sorted_clip_list:

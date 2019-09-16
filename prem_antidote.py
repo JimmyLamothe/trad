@@ -14,7 +14,15 @@ import sys
 import tc_calc
 
 input_xml = sys.argv[1]
-output_xml = sys.argv[2] #input/REF/REF_ECHO_24 or 30
+
+try:
+    output_xml = sys.argv[2] #input/REF/REF_ECHO_24 or 30
+except Exception:
+    answer = input('24 or 30?')
+    if answer == '24':
+        output_xml = 'input/REF/REF_ECHO_24.xml'
+    elif answer == '30':
+        output_xml = 'input/REF/REF_ECHO_30.xml'
 
 filename = input_xml[:-4]
 
@@ -59,17 +67,21 @@ output_clip_list = output_v1.findall('generatoritem')
 
 with open(filename_txt, 'w') as txt_output:
     title_list = []
-    for number, title in enumerate(clip_list):
-        filter = title.find('filter')
-        effect = filter.find('effect')
-        value = effect.find('name').text
-        if value == None:
-            try:
-                raise Exception # To implement for Premiere version
-            except Exception:
+    for number, clip in enumerate(clip_list):
+        filter_list = clip.findall('filter')
+        value = ""
+        line = 1
+        for filter in filter_list:
+            if line > 1:
+                value += '\n'
+            effect = filter.find('effect')
+            if effect.find('name').text == None:
                 print('Title ' + str(number) + ' failed - No value')
-                input('Continue?')
                 continue
+            else:
+                value += effect.find('name').text
+                line += 1
+
         print('Title ' + str(number) + ': ')
         print(value.replace('\r','\n'))
         title_list.append(value)    
@@ -88,8 +100,10 @@ with open(filename_txt, 'r') as txt_input:
     input('Continue?')
     title_list = title_list[1:]
     print(output_clip_list)
-    for number, clip in enumerate(output_clip_list):
-        if number >= len(title_list):
+    for number, clip in enumerate(output_clip_list): # Remove extra items from XML REF
+        if number >= len(title_list) or number >= len(clip_list):
+            output_v1.remove(clip)
+            continue
             break
         print(number)
         print(clip)
