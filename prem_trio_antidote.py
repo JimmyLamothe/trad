@@ -122,11 +122,11 @@ with open(filename_txt, 'r') as txt_input:
         clip.find('end').text = end
         for loop_parameter in effect.findall('parameter'):
             if loop_parameter.find('parameterid').text == 'fontsize':
-                loop_parameter.find('value').text = '32' #Value for ECHO - change if necessary
+                loop_parameter.find('value').text = '26' #Value for TRIO - change if necessary
                 print('changed font size')
             if loop_parameter.find('parameterid').text == 'origin':
                 origin_value = loop_parameter.find('value')
-                origin_value.find('vert').text = '0.410000' #Value for ECHO - change if necessary
+                origin_value.find('vert').text = '0.410000' #Value for TRIO - change if necessary
                 print('changed title origin')
         if value == None:
             try:

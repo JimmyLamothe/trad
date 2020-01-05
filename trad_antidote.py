@@ -71,7 +71,7 @@ with open(filename_txt, 'r') as txt_input:
     print(len(title_list))
     print(title_list)
     title_list = title_list[1:]
-    for clip in enumerate(clip_list):
+    for number, clip in enumerate(clip_list):
         print(number)
         print(clip)
         effect = clip.find('effect')
