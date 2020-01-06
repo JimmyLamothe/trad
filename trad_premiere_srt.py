@@ -51,25 +51,7 @@ with open(filename_srt, 'w') as srt_output:
             else:
                 value += effect.find('name').text
                 line += 1
-        text = ""
-        previous_letter = ""
-        letter_count = 0
-        for letter in value:
-            if letter in ['\n','\r','\n\r','\r\n']:
-                if letter_count == 0:
-                    pass
-                else:
-                    text += " "
-            elif letter == "-" and letter_count in [0,1,2]:
-                pass
-            elif previous_letter == "-" and letter_count in [1,2,3]:
-                pass
-            else:
-                text += letter
-            previous_letter = letter
-            letter_count += 1
-        title_list.append((start, end, text))
-
+        title_list.append((start, end, value))
     sorted_clip_list = sorted(title_list, key = lambda clip: clip[0])
 
     count = 0
