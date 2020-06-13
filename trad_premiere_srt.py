@@ -20,6 +20,17 @@ except IndexError:
     print("Don't forget to enter Time Code (24 or 30)")
     sys.exit(0)
 
+skip_empty = True
+
+try:
+    if sys.argv[3] == 'False':
+        skip_empty = False
+    else:
+        print('Invalid argument')
+        sys.exit(0)
+except IndexError:
+    pass
+
 filename_srt = input_file[:-4] + '.srt'
 
 tree = etree.parse(input_file)
@@ -51,11 +62,17 @@ with open(filename_srt, 'w') as srt_output:
             else:
                 value += effect.find('name').text
                 line += 1
+            if skip_empty:
+                if value[0] == '\r':
+                    print('empty first')
+                    value = value[1:]
         title_list.append((start, end, value))
     sorted_clip_list = sorted(title_list, key = lambda clip: clip[0])
 
     count = 0
     for clip in sorted_clip_list:
+        if value[0] == '\r':
+            print('still empty first')
         count += 1
         duration = clip[1] - clip[0]
         tc_in_base = tc_calc.tc_calc(clip[0], hour = 10, tc = tc)
