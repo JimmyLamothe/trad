@@ -4,6 +4,10 @@
 Convertit un XML FCP7 en .srt.
 
 Prend deux arguments: input/NOMDUXML - TC
+
+L'argument optionnel False n'efface pas les lignes vides
+
+Vérifier si le TC commence à 10 ou 0
 """
 
 from lxml import etree
@@ -62,10 +66,14 @@ with open(filename_srt, 'w') as srt_output:
             else:
                 value += effect.find('name').text
                 line += 1
-            if skip_empty:
-                if value[0] == '\r':
-                    print('empty first')
+
+            if value[0] == '\r':
+                if skip_empty:
+                    print('deleting empty first')
                     value = value[1:]
+                else:
+                    print('replacing empty first with invisible char')
+                    value = ' ' + value
         title_list.append((start, end, value))
     sorted_clip_list = sorted(title_list, key = lambda clip: clip[0])
 
@@ -75,13 +83,13 @@ with open(filename_srt, 'w') as srt_output:
             print('still empty first')
         count += 1
         duration = clip[1] - clip[0]
-        tc_in_base = tc_calc.tc_calc(clip[0], hour = 10, tc = tc)
+        tc_in_base = tc_calc.tc_calc(clip[0], hour=0, tc=tc, srt=True)
         tc_in_start = tc_in_base[0:8]
         tc_in_frames = tc_in_base[9:]
         tc_in_milliseconds_base = float(tc_in_frames) / tc
         tc_in_milliseconds = "{0:.3f}".format(tc_in_milliseconds_base)[2:5]
         tc_in = tc_in_start + ',' + tc_in_milliseconds
-        tc_out_base = tc_calc.tc_calc(clip[1], hour = 10, tc = tc)
+        tc_out_base = tc_calc.tc_calc(clip[1], hour=0, tc=tc, srt=True)
         tc_out_start = tc_out_base[0:8]
         tc_out_frames = tc_out_base[9:]
         tc_out_milliseconds_base = float(tc_out_frames) / tc

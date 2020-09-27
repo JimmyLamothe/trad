@@ -4,12 +4,14 @@
 
 import sys, math
 
-def tc_calc(input, integer = False, reverse = False, hour = 0, tc = 30):
+def tc_calc(input, integer = False, reverse = False, hour = 0, tc = 30,
+            srt=False):
      """input is an integer (number of frames).
      Use reverse = True to go from TC to frames.
      If reverse, input is a 4-tuple (hours, mins, secs, frames).
      Use hour if TC start is e.g. 9:58:30:00 or 10:00:00:00.
      Use tc to specify tc rate if different than 30. Only 24 implemented.
+     Use srt when exporting srt (real time)
      """ 
      if reverse:
           if(tc == 24):
@@ -27,7 +29,7 @@ def tc_calc(input, integer = False, reverse = False, hour = 0, tc = 30):
 
      else:
           coefficient = 1
-          if(tc == 24):
+          if(tc == 24 and not srt):
                coefficient = 0.999
           offset = math.floor(input/960)     
           total = math.floor(coefficient*(input + offset))
