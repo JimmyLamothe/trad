@@ -53,14 +53,14 @@ title_list_v2 = v2.findall('clipitem')
 with open(filename_txt, 'w') as txt_output:
     clip_list = []
     name = input("Entrez le nom de l'invité ou l'animateur.\n")
-    number = "ST-1"
+    number = "1"
     title_list = title_list_v1 + title_list_v2
     i = 0
     for title in title_list:
         i += 1
         if i == len(title_list_v1):
             name = input("Entrez le nom de l'intervenant principal.\n")
-            number = '1'
+            number = 'ST-1'
         filter_list = title.findall('filter')
         value = ""
         line = 1

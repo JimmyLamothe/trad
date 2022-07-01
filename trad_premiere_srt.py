@@ -61,7 +61,7 @@ with open(filename_srt, 'w') as srt_output:
                 value += '\n'
             effect = filter.find('effect')
             if effect.find('name').text == None:
-                print('Title failed - No value')
+                print('Title skipped - No value')
                 continue
             else:
                 value += effect.find('name').text
