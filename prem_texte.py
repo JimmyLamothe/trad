@@ -29,26 +29,27 @@ with open(filename_txt, 'w') as txt_output:
     for clip in clip_list:
         filter_list = clip.findall('filter')
         value = ""
-        line = 1
         for filter in filter_list:
-            if line > 1:
-                value += '\n'
             effect = filter.find('effect')
             if effect.find('name').text == None:
                 print('Title skipped - No value')
                 continue
             else:
                 value += effect.find('name').text
-                line += 1
-
             if value[0] == '\r':
                 print('deleting empty first')
                 value = value[1:]
-        title_list.append(value)
+            value = value.replace('\n', ' ')
+            value = value.replace('\r', ' ')
+        title_list.append(value + ' ')
 
     count = 0
     for title in title_list:
+        title = title.replace('\n',' ')
+        title = title.replace('\r',' ')
+        title = title.replace('.','. ')
+        title = title.replace('?','? ')
+        title = title.replace('!','! ')
+        title = title.replace('  ',' ')
         txt_output.write(title)
-        txt_output.write('\n')
-        txt_output.write('\n')
         count += 1

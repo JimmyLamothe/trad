@@ -42,24 +42,24 @@ def get_track_list(video_or_audio):
 
 track_list = get_track_list(video)
     
-v1 = track_list[0]
+v1 = track_list[1]
 
 title_list_v1 = v1.findall('clipitem')
 
-v2 = track_list[1]
+v2 = track_list[0]
 
 title_list_v2 = v2.findall('clipitem')
 
 with open(filename_txt, 'w') as txt_output:
     clip_list = []
-    name = input("Entrez le nom de l'invité ou l'animateur.\n")
+    name = input("Entrez le nom de l'intervenant principal.\n")
     number = "1"
     title_list = title_list_v1 + title_list_v2
     i = 0
     for title in title_list:
         i += 1
         if i == len(title_list_v1):
-            name = input("Entrez le nom de l'intervenant principal.\n")
+            name = input("Entrez le nom de l'invité vedette ou l'animateur.\n")
             number = 'ST-1'
         filter_list = title.findall('filter')
         value = ""
@@ -78,7 +78,8 @@ with open(filename_txt, 'w') as txt_output:
         previous_letter = ""
         letter_count = 0
         if not value:
-            continue        
+            continue
+        value = value.replace('&amp;#13;', '\n')
         for letter in value:
             if letter in ['\n','\r','\n\r','\r\n']:
                 if letter_count == 0:
@@ -115,7 +116,7 @@ with open(filename_txt, 'w') as txt_output:
                                     current_name, current_text))
             current_start = clip[0]
             current_text=""
-        elif clip[0] -  current_end > 60 or clip[3] != current_name or clip[2][0:2] == 'ST':
+        elif clip[0] -  current_end > 36 or clip[3] != current_name or clip[2][0:2] == 'ST':
             short_clip_list.append((current_start, current_end, current_number,
                                     current_name, current_text))
             current_start = clip[0]
