@@ -1,23 +1,9 @@
-"""
-These functions serve to take an XML file with subtitles
-and create a list of dictionaries with the following keys:
-
-'start': INT - Start frame
-'end': INT - End frame
-'text': STR - Text of subtitle
-'ST': BOOL - True if subtitle text is to be on screen, False if it is to be recorded by an actor
-'name': STR - Character name
-
-The XML file needs two tracks: V1 = Subtitles, V2 = Dubbing
-"""
-
 import re
 from lxml import etree
 import tc_calc
 from pathlib import Path
 
 def get_input_file(folder='input'):
-    """ Gets latest created file as a default, or user input if different """
     input_folder = Path(folder)
     files = [item for item in input_folder.iterdir() if item.is_file()]
     latest_file = max(files, key=lambda f: f.stat().st_mtime)
@@ -29,7 +15,6 @@ def get_input_file(folder='input'):
     return latest_file
 
 def get_tc_info(tc=24, hour=0):
-    """ Gets TC and start hour values for the output file """
     print('Default TC is 24 (same as 23.98). Type return to accept or type wanted value.')
     answer = input()
     if answer:
@@ -201,3 +186,13 @@ def combine_titles(title_list, max_gap = 48):
     if buffer:
         combined_titles.append(buffer)
     return combined_titles
+
+input_file = get_input_file()
+tc_info = get_tc_info()
+
+subtitle_list = dict_from_xml(input_file, tc_info['tc'], tc_info['hour'])
+combined_list = combine_titles(subtitle_list)
+
+
+for subtitle in combined_list:
+    print(subtitle)
