@@ -12,6 +12,7 @@ The XML file needs two tracks: V1 = Subtitles, V2 = Dubbing
 """
 
 import re
+import pandas as pd
 from lxml import etree
 import tc_calc
 from pathlib import Path
@@ -128,27 +129,32 @@ def get_name(number, character_dict):
         character_dict[number] = name
     return name
 
-def add_name(name, title_dict):
-    """ Adds a name to a title_dict """
-    title_dict['name'] = name
-
 def add_names(title_list, character_dict):
     """ Adds a 'name' key to a title_dict and updates the character_dict """
     number = None
-    name = None
+    last_dubbed_name = None  # Tracks the last dubbed speaker (ST=False)
+    last_subtitled_name = None  # Tracks the last subtitled speaker (ST=True)
     for title_dict in title_list:
         try:
             number = get_number(title_dict['text'])
             if not number:
                 raise ValueError
             name = get_name(number, character_dict)
-            title_dict['text'] = title_dict['text'].split(" ", 1)[1] #Remove number
+            title_dict['text'] = title_dict['text'].split(" ", 1)[1]  # Remove number
         except ValueError:
-            pass #If no new number, then we keep the old values
+            # If no new number, use the last known speaker for the current type
+            if title_dict['ST']:
+                name = last_subtitled_name
+            else:
+                name = last_dubbed_name
         if not name:
             raise ValueError('First title must have a character number')
         title_dict['name'] = name
-
+        # Update the last speaker for the appropriate type
+        if title_dict['ST']:
+            last_subtitled_name = name
+        else:
+            last_dubbed_name = name
         
 def dict_from_xml(input_file, tc, hour):
     """ Creates a dict of subtitles from an xml file """
@@ -201,3 +207,19 @@ def combine_titles(title_list, max_gap = 48):
     if buffer:
         combined_titles.append(buffer)
     return combined_titles
+
+def add_duration(title_list):
+    """ Adds the duration in frames to each title """
+    for title in title_list:
+        title['duration'] = title['end'] - title['start']
+    return title_list
+
+def get_character_timing(title_list):
+    """ Takes a subtitle dict and gets the total speaking time for each character """
+    df = pd.DataFrame(title_list)
+    df = df[df['ST'] == False]
+    result = df.groupby('name')['duration'].sum().reset_index()
+    total_duration = result['duration'].sum()
+    timing_list = result.values.tolist()
+    timing_list.append(['Durée totale', total_duration])
+    return timing_list
