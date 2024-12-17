@@ -112,17 +112,13 @@ def get_title_value(title):
             value += effect.find('name').text
             line +=1
     return value
-    
-def analyze_title(title):
-    """ Returns the text, start and end times of a title """
-    value = get_title_value(title)
-    if not value:
-        raise ValueError('Empty title')
-    value = value.replace('&amp;#13;', '\n')
+
+def remove_breaks(string):
+    """ Converts line breaks to spaces """
     text = ""
     previous_letter = ""
     letter_count = 0
-    for letter in value:
+    for letter in string:
         if letter in ['\n','\r','\n\r','\r\n']:
             if letter_count == 0:
                 pass
@@ -132,20 +128,32 @@ def analyze_title(title):
             text += letter
         previous_letter = letter
         letter_count += 1
+    return text
+
+def analyze_title(title, surimpression=True):
+    """ Returns the text, start and end times of a title """
+    value = get_title_value(title)
+    if not value:
+        raise ValueError('Empty title')
+    value = value.replace('&amp;#13;', '\n')
+    if surimpression:
+        text = remove_breaks(string)
+    else:
+        text = value
     start = int(title.find('start').text)
     end = int(title.find('end').text)
     return {'start': start,
             'end': end,
             'text': text}
 
-def get_title_list(track_list, subtitles=False):
+def get_title_list(track_list, surimpression=True, subtitles=False):
     """ Gets list of title dicts from a video track """
     title_list = []
     i = 0
     for title in track_list:
         i += 1
         try:
-            title_dict = analyze_title(title)
+            title_dict = analyze_title(title, surimpression=surimpression)
             title_dict['ST'] = subtitles
             title_list.append(title_dict)
         except ValueError as e:
@@ -227,12 +235,12 @@ def get_title_dicts(input_file, surimpression=True):
     full_title_list = []
     v1 = track_list[0]
     titles_v1 = v1.findall('clipitem')
-    title_list_v1 = get_title_list(titles_v1, subtitles=True)
+    title_list_v1 = get_title_list(titles_v1, surimpression=surimpression, subtitles=True)
     full_title_list += title_list_v1
     if surimpression:
         v2 = track_list[1]
         titles_v2 = v2.findall('clipitem')
-        title_list_v2 = get_title_list(titles_v2, subtitles=False)
+        title_list_v2 = get_title_list(titles_v2, surimpression=True, subtitles=False)
         full_title_list += title_list_v2
     sorted_title_list = sorted(full_title_list, key=lambda x:x['start'])
     if surimpression:
