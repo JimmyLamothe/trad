@@ -19,7 +19,7 @@ from pathlib import Path
 def get_input_file(folder='input'):
     """ Gets latest created file as a default, or user input if different """
     input_folder = Path(folder)
-    files = [item for item in input_folder.iterdir() if item.is_file()]
+    files = [item for item in input_folder.iterdir() if item.is_file() and item.suffix == '.xml']
     latest_file = max(files, key=lambda f: f.stat().st_mtime)
     print('Press return if this is the file you want to work with, otherwise type the correct path:')
     print(latest_file)
@@ -137,7 +137,7 @@ def analyze_title(title, surimpression=True):
         raise ValueError('Empty title')
     value = value.replace('&amp;#13;', '\n')
     if surimpression:
-        text = remove_breaks(string)
+        text = remove_breaks(value)
     else:
         text = value
     start = int(title.find('start').text)
@@ -257,7 +257,7 @@ def combine_titles(title_list, max_gap = 24):
     buffer = None
     for title in title_list:
         # If 'ST' is True or we forced a split, don't combine
-        if title['ST'] or title.get('split', False):
+        if title['ST']:
             if buffer:
                 combined_titles.append(buffer)
                 buffer = None
@@ -268,7 +268,9 @@ def combine_titles(title_list, max_gap = 24):
             buffer = title
         else:
             # Check if the gap is within max_gap and speaker matches
-            if title['start'] - buffer['end'] <= max_gap and title['name'] == buffer['name']:
+            if (title['start'] - buffer['end'] <= max_gap
+                and title['name'] == buffer['name']
+                and not title.get('split', False)):
                 # Combine titles
                 buffer['end'] = title['end']
                 buffer['text'] += " " + title['text']
