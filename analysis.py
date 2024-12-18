@@ -224,7 +224,7 @@ def add_names(title_list, character_dict):
         else:
             last_dubbed_name = name
         
-def get_title_dicts(input_file, surimpression=True):
+def get_title_dicts(input_file, text_only=False, surimpression=True):
     """ Creates a list of subtitle dicts from an xml file """
     tree = etree.parse(str(input_file))
     root = tree.getroot()
@@ -237,13 +237,13 @@ def get_title_dicts(input_file, surimpression=True):
     titles_v1 = v1.findall('clipitem')
     title_list_v1 = get_title_list(titles_v1, surimpression=surimpression, subtitles=True)
     full_title_list += title_list_v1
-    if surimpression:
+    if surimpression or text_only:
         v2 = track_list[1]
         titles_v2 = v2.findall('clipitem')
         title_list_v2 = get_title_list(titles_v2, surimpression=True, subtitles=False)
         full_title_list += title_list_v2
     sorted_title_list = sorted(full_title_list, key=lambda x:x['start'])
-    if surimpression:
+    if surimpression and not text_only:
         character_dict = {}
         add_names(sorted_title_list, character_dict)
     else:
