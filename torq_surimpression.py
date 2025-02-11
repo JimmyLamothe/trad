@@ -5,13 +5,13 @@ Convertit un XML Adobe Premier en TXT avec Time Codes et identification de perso
 Génère aussi un TXT avec les personnages et leur temps total
 """
 
-from analysis import get_input_file, get_full_tc_info, get_title_dicts
+from analysis import get_input_files, get_full_tc_info, get_title_dicts
 from analysis import combine_titles, add_duration, get_character_timing
 from get_tc import get_tc
 
 print('Ne pas oublier de vérifier que le TC est bon avant de travailler sur le document Word.\n')
 
-input_file = get_input_file()
+input_file = get_input_files(single_file=True)
 tc_info = get_full_tc_info(tc_out='ignore')
 tc_in = tc_info['tc_in']
 start_hour = tc_info['start_hour']

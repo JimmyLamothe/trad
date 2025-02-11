@@ -15,18 +15,25 @@ import re
 import pandas as pd
 from lxml import etree
 from pathlib import Path
+import tkinter as tk
+from tkinter import filedialog
 
-def get_input_file(folder='input'):
-    """ Gets latest created file as a default, or user input if different """
-    input_folder = Path(folder)
-    files = [item for item in input_folder.iterdir() if item.is_file() and item.suffix == '.xml']
-    latest_file = max(files, key=lambda f: f.stat().st_mtime)
-    print('Press return if this is the file you want to work with, otherwise type the correct path:')
-    print(latest_file)
-    answer = input()
-    if answer:
-        latest_file = Path(answer)
-    return latest_file
+def get_input_files(folder='input', single_file=False):
+    """ Gets list of XML files to process """
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    filepicker = filedialog.askopenfilenames
+    if single_file:
+        filepicker = filedialog.askopenfilename
+    # Open file dialog
+    file_paths = filepicker(
+        title = "Select Files",
+        initialdir = folder,  # Change this to your default folder
+        filetypes = [("XML Files", "*.xml")]  # You can specify file types if needed
+    )
+    if single_file:
+        return Path(file_paths)
+    return [Path(path) for path in file_paths]
 
 def get_tc_info(tc=24, hour=0):
     """ Gets TC and start hour values for the output file """
