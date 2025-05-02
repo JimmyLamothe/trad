@@ -296,12 +296,23 @@ def add_duration(title_list):
         title['duration'] = title['end'] - title['start']
     return title_list
 
-def get_character_timing(title_list):
+def get_character_timing(title_list, fps=24, TORQ=False):
     """ Takes a subtitle dict and gets the total speaking time for each character """
     df = pd.DataFrame(title_list)
     df = df[df['ST'] == False]
-    result = df.groupby('name')['duration'].sum().reset_index()
-    total_duration = result['duration'].sum()
+    if TORQ:
+        df['duration_sec'] = df['duration'].apply(lambda d: max(d // fps, 1))
+        result = df.groupby('name')['duration_sec'].sum().reset_index()
+        total_duration = result['duration_sec'].sum()
+        result.columns = ['name', 'duration']
+    else:
+        result = df.groupby('name')['duration'].sum().reset_index()
+        total_duration = result['duration'].sum()
     timing_list = result.values.tolist()
     timing_list.append(['Durée totale', total_duration])
     return timing_list
+
+def get_minutes_seconds(seconds):
+    """ Takes a duration in seconds (int) returns minutes + seconds (tuple) """
+    minutes, seconds = divmod(duration, 60)  # Get minutes and remaining seconds
+    return (minutes, seconds)

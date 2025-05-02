@@ -18,15 +18,14 @@ start_hour = tc_info['start_hour']
 subtitle_list = get_title_dicts(input_file)
 combined_list = combine_titles(subtitle_list)
 add_duration(combined_list)
-character_timing = get_character_timing(combined_list)
+character_timing = get_character_timing(combined_list, fps=tc_in, TORQ=True)
 
 output_characters = input_file.parent / f"{input_file.stem}_characters.txt"
 output_titles = input_file.parent / f"{input_file.stem}_titles.txt"
 
 with open(output_characters, 'w') as output_file:
-    for name, duration_frames in character_timing:
-        total_seconds = max(duration_frames // tc_in, 1)
-        minutes, seconds = divmod(total_seconds, 60)  # Get minutes and remaining seconds
+    for name, seconds in character_timing:
+        minutes, seconds = divmod(seconds, 60)  # Get minutes and remaining seconds
         if minutes > 0:
             output_file.write(f"{name} - {minutes} min {seconds} sec\n")
         else:
