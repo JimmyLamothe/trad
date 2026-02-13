@@ -29,7 +29,10 @@ for count, filepath in enumerate(input_files):
     else:
         append = 'a'
     with open(output_txt, append) as output_file:
+        output_file.write(" ".join(title['text'].strip() for title in title_list if title['text'].strip()))
+"""
         for title in title_list:
             print(title['text'])
             output_file.write(f"{title['text']}\n")  # Title text
             output_file.write("\n")  # Line break
+"""

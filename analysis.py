@@ -202,7 +202,7 @@ def remove_name_id(title_dict):
     if number:
         title_dict['text'] = title_dict['text'].split(" ", 1)[1]
     
-def add_names(title_list, character_dict):
+def add_names(title_list, character_dict, add_number=False):
     """ Adds a 'name' key to a title_dict and updates the character_dict """
     number = None
     last_dubbed_name = None  # Tracks the last dubbed speaker (ST=False)
@@ -225,13 +225,15 @@ def add_names(title_list, character_dict):
         if not name:
             raise ValueError('First title must have a character number')
         title_dict['name'] = name
+        if add_number:
+            title_dict['number'] = number
         # Update the last speaker for the appropriate type
         if title_dict['ST']:
             last_subtitled_name = name
         else:
             last_dubbed_name = name
         
-def get_title_dicts(input_file, text_only=False, surimpression=True):
+def get_title_dicts(input_file, text_only=False, surimpression=True, add_number=False):
     """ Creates a list of subtitle dicts from an xml file """
     tree = etree.parse(str(input_file))
     root = tree.getroot()
@@ -252,7 +254,7 @@ def get_title_dicts(input_file, text_only=False, surimpression=True):
     sorted_title_list = sorted(full_title_list, key=lambda x:x['start'])
     if surimpression and not text_only:
         character_dict = {}
-        add_names(sorted_title_list, character_dict)
+        add_names(sorted_title_list, character_dict, add_number=add_number)
     else:
         for title in sorted_title_list:
             remove_name_id(title)

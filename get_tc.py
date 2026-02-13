@@ -42,7 +42,7 @@ HH:MM:SS:mls (Hour - Minute - Second - Millisecond):
 COEFFICIENT = 1.001
 
 fps_map = {
-        '23.976': 24,
+        '23,976': 24,
         '24': 24,
         '25': 25,
         'SRT': None  #SRT uses same as input
