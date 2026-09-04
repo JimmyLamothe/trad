@@ -17,20 +17,14 @@ for input_file in input_files:
     subtitle_list = [title for title in title_list if title.get('ST', False)]
     output_srt = input_file.parent / f"{input_file.stem}.srt"
 
-    with open(output_srt, 'w', newline='\n') as output_file:
+    with open(output_srt, 'w') as output_file:
         for index, title in enumerate(subtitle_list, start=1):
             # Convert frame numbers to timecode in HH:MM:SS,ms format
             start_time = get_tc(title['start'], tc_in=tc_in, tc_out='SRT', start_hour=0)
             end_time = get_tc(title['end'], tc_in=tc_in, tc_out='SRT', start_hour=0)
 
-            # Premiere XML titles can contain '\r' or '\r\n' as internal line
-            # breaks (classic Mac-style line endings). Normalize to '\n' so
-            # every line in the SRT uses a consistent, Premiere-friendly
-            # line ending.
-            text = title['text'].replace('\r\n', '\n').replace('\r', '\n')
-
             # Write in SRT format
             output_file.write(f"{index}\n")  # Title number
             output_file.write(f"{start_time} --> {end_time}\n")  # Timecodes
-            output_file.write(f"{text}\n")  # Title text
+            output_file.write(f"{title['text']}\n")  # Title text
             output_file.write("\n")  # Line break

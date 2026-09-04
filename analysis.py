@@ -18,8 +18,10 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 
-def get_input_files(folder='input', single_file=False):
+def get_input_files(folder='input', single_file=False, filetypes=None):
     """ Gets list of XML files to process """
+    if filetypes is None:
+        filetypes = [("XML Files", "*.xml")]
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     filepicker = filedialog.askopenfilenames
@@ -29,7 +31,7 @@ def get_input_files(folder='input', single_file=False):
     file_paths = filepicker(
         title = "Select Files",
         initialdir = folder,  # Change this to your default folder
-        filetypes = [("XML Files", "*.xml")]  # You can specify file types if needed
+        filetypes = filetypes  # You can specify file types if needed
     )
     if single_file:
         return Path(file_paths)

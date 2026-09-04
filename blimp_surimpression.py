@@ -41,14 +41,14 @@ with open(output_titles, 'w') as output_file:
             tc_in=tc_in,
             tc_out=tc_out,
             start_hour=start_hour,
-            coefficient=False
+            coefficient=True
         )
         end_time = get_tc(
             title['end'],
             tc_in=tc_in,
             tc_out=tc_out,
             start_hour=start_hour,
-            coefficient=False
+            coefficient=True
         )
         duration_seconds = max(title['duration'] // tc_in, 1)
         # Write the formatted text to the file
